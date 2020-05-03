@@ -1,6 +1,6 @@
 const HTTPS_PORT = 8443; //default port for https is 443
 const HTTP_PORT = 8001; //default port for http is 80
-
+var CLIENTS = []
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
@@ -40,28 +40,70 @@ httpsServer.listen(HTTPS_PORT);
 
 // Create a server for handling websocket calls
 const wss = new WebSocketServer({ server: httpsServer });
+wss.getUniqueID = function () {
+  function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  }
+  return s4() + s4() + '-' + s4();
+};
 
 wss.on('connection', function (ws) {
+  //ws.id = wss.getUniqueID();
+  
+  
   ws.on('message', function (message) {
     // Broadcast any received message to all clients
     console.log('received: %s', message);
-    wss.broadcast(message);
+    recv = JSON.parse(message)
+    if(recv.dest == "all"){
+      ws.id = recv.uuid
+      CLIENTS.push(ws.id)
+      ws.len = CLIENTS.length-1
+      wss.broadcast(message);
+    }else{
+      wss.reverseBroadcast(message)
+    }
+    
+    //console.log("kanha", ws.id, ws.clientCount)
   });
 
   ws.on('error', () => ws.terminate());
 });
-
-wss.broadcast = function (data) {
-  this.clients.forEach(function (client) {
-    
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
+wss.reverseBroadcast = function (data){
+  this.clients.forEach(function (client){
+    if(client.id == recv.dest){
+      if (client.readyState === WebSocket.OPEN) {  
+        client.send(data);
+        }
     }
   });
+}
+wss.broadcast = function (data) {
+  
+  this.clients.forEach(function (client) {
+    console.log(data , "sanya");
+    if (CLIENTS.length==1){
+      if (client.readyState === WebSocket.OPEN) {  
+      client.send(data);
+      }
+    }
+    else if(client.id==CLIENTS[CLIENTS.length-2]){
+      console.log(client.id,"BBBBBBBB");
+    //console.log('Client.ID: ' + client.id)
+    //console.log(data , "sanya");
+    if (client.readyState === WebSocket.OPEN) {
+      
+      client.send(data);
+    }
+    }
+    
+  });
+
+
 };
 
-console.log('Server running.'
-);
+console.log('Server running.');
+
 
 // ----------------------------------------------------------------------------------------
 
