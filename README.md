@@ -1,5 +1,8 @@
-PeerStream
+Multi-Client WebRTC Video
 =========================
+
+Based on https://github.com/shanet/WebRTC-Example, see [https://shanetully.com/2014/09/a-dead-simple-webrtc-example/](https://shanetully.com/2014/09/a-dead-simple-webrtc-example/) for a description of WebRTC basics.
+
 ## Usage
 
 The signaling server uses Node.js and `ws` and can be started as 

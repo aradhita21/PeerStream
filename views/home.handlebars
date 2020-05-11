@@ -1,0 +1,62 @@
+
+<style>
+    :root {
+    --rowHeight: 98vh;
+    --colWidth: 98vw;
+  }
+  body{
+      background: black;
+  }
+  .videos { 
+     display: grid;
+      grid-gap: 5px;
+      grid-auto-flow: row; 
+      grid-template-columns: repeat(auto-fit, minmax(var(--colWidth), 1fr)) ;
+  } 
+  .videoContainer {
+      position: relative;
+      overflow: hidden;
+      
+      min-height: var(--rowHeight);
+      min-width: var(--colWidth);}
+  .videoContainer video {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: auto;
+      width: 100%;}
+  .videoLabel {
+      color: white;
+      font: bold 18px Arial, Sans-Serif;
+      line-height: 18px;
+      height: 18px;
+      background: rgba(0, 0, 0, 0.55);
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      padding: 4px;}
+    </style>
+
+  <!--<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>-->
+<script src = "/static/adapter.js"> </script>
+<script src = "/static/webrtc.js"></script>
+<body>
+<div class="ui small menu">
+  <div class="right menu">
+     <div class="item">
+      <h4>{{user.email}}</h4>
+      </div>
+    <div class="item">
+        <a href="/logout" class="ui primary button">Log Out</a>
+    </div></div></div>
+
+  <div id="videos" class="videos">
+    <div id="localVideoContainer" class="videoContainer">
+      <video id="localVideo" autoplay muted></video>
+    </div>
+    </div>
+     <script type="text/javascript" >
+    start(); 
+  </script>
+  </body>
+ 
