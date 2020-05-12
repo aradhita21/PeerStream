@@ -26,7 +26,8 @@
     "passport-local": "^1.0.0",
     "pug": "^2.0.4",
     "ws": "^3.3.2",
-    "flash" : "^1.1.0"
+    "flash" : "^1.1.0",
+    "express-flash-messages" :"^0.1.1"
   },
   "devDependencies": {
     "dotenv": "^7.0.0",
