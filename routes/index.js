@@ -40,4 +40,12 @@ app.get('/logout', function(req, res) { //if app gets "/logout"
         return next(); //carry on, next is "/" to home page
      res.redirect('/login');// if they aren't redirect them to the home page
  }
+    
+ //send to fb to do authentication
+ app.get('/auth/facebook', passport.authenticate('facebook', {scope : 'email'}));
+//handle the callback after fb has authenticated the user
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login',
+                            successRedirect : '/' }));
+
 };
