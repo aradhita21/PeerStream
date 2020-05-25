@@ -27,7 +27,9 @@
     "pug": "^2.0.4",
     "ws": "^3.3.2",
     "flash" : "^1.1.0",
-    "express-flash-messages" :"^0.1.1"
+    "express-flash-messages" :"^0.1.1",
+    "passport-facebook": "^2.0.0",
+    "passport-facebook-token": "^3.3.0"
   },
   "devDependencies": {
     "dotenv": "^7.0.0",
