@@ -3,9 +3,8 @@ const  bcrypt   = require('bcrypt-nodejs');//library for hashing passwords
 const Schema = mongoose.Schema;//array of obejct and schemas
 
 let userschema = new Schema({ // storing user details
-    email : { type: String, required: true, unique: true }, //store email as string, should be unique
-    password : { type: String, required: true }, //store password as string, no need of unique
-    registeredAt: { type: Date, index: true }// for maintaining data
+    local : { email : String, password : String },
+    facebook : {id : String, token : String, email : String, name : String },
 });
 //generating hash of the password to be stored in database using bcrypt 
 userschema.methods.generateHash = function(password) {
