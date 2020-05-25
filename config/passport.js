@@ -1,5 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy;// import local strategy middlware module
 let User = require('../models/user.schema');//accessing user deetails from user.schema.js
+var FacebookStrategy = require('passport-facebook').Strategy;
+var config = require('../config/oauth');
 
 module.exports = function(passport){
       //determines which information on the user object should be stored in our application's session
@@ -17,26 +19,9 @@ module.exports = function(passport){
         passwordField : 'password',
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
-  //  function(req, email, password, done) {
-    
- //       process.nextTick(function() {  // User.findOne wont fire unless data is sent back
- //         User.findOne({ 'email' :  email }, function(err, user) {// see if the user trying to login already exists
-            
- //           if (err) // if there are any errors, return the error
- //               return done(err);
-  //          if (user) {  // check to see if theres already a user with that email
-  //              return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-   //         } else {
-   //             var newUser = new User(); // if there is no user with that email, create the user
-    //            newUser.email    = email; // set the user's local credentials
-     //           newUser.password = newUser.generateHash(password);
-     //           newUser.save(function(err) { // save the user
-      //              if (err)
-       //                 throw err;
-       //             return done(null, newUser);
-       //         });
-       //     }
-       function(req, email, password, done) {
+  
+  
+    function(req, email, password, done) {
 
      process.nextTick(function() {
    User.findOne({ 'email' :  email }, function(err, user) {  // find a user whose email is the same as the forms email   
@@ -80,4 +65,65 @@ passport.use('local-login', new LocalStrategy({
             return done(null, user); // no error, return successful user
         });
      }));
-}
+
+     // =----------------------- facebook config
+passport.use(new FacebookStrategy({
+    clientID: config.facebook.clientID,
+    clientSecret: config.facebook.clientSecret,
+    callbackURL: config.facebook.callbackURL,
+    profileFields : ['id','emails','name'], // gives profile.id .name .emails
+    passReqToCallback:true //check if user is logged in or not
+    },
+    //facebook will send back token and profile
+    function(req, token, refreshToken, profile, done) {
+      //asynchronnous
+        process.nextTick(function () {
+            if (!req.user){
+            User.findOne({'facebook.id':profile.id}, function(err, user){
+                if (err)
+                    return done(err);
+                if (user){    
+                    //user already exist but no token
+                if(!user.facebook.token) {
+                user.facebook.token = accessToken; //save token provided by fb
+                user.facebook.name = profile.name.givenName+''+profile.name.familyName;//see how many names are returnedd
+                user.facebook.email = profile.emails[0].value; //facebook can return multiple emails, take only one
+
+                user.save(function(err){
+                    if (err) throw err;
+                    return done(null, user);
+                });
+            }
+            return done(null, user); //user found, return that user
+        }else { //if there is no user, create
+            var newUser = new User()
+            newUser.facebook.id = profile.id;
+            newUser.facebook.token = token; //save token provided by fb
+            newUser.facebook.name = profile.name.givenName+''+profile.name.familyName;//see how many names are returnedd
+            newUser.facebook.email = profile.emails[0].value; //facebook can return multiple emails, take only one
+
+            newUser.save(function(err){
+                if (err) throw err;
+                return done(null, newUser);
+            });
+        }
+      });
+
+    } else { //user already exists and is logged in, we have to link accounts
+        var user = req.user; //pull user out of session
+        user.facebook.id = profile.id;
+        user.facebook.token = accessToken; //save token provided by fb
+        user.facebook.name = profile.name.givenName+''+profile.name.familyName;//see how many names are returnedd
+        user.facebook.email = profile.emails[0].value; //facebook can return multiple emails, take only one
+
+        user.save(function(err){
+            if (err) throw err;
+            return done(null, user);
+    });
+    }
+ });
+}));
+
+
+
+} //module,export
