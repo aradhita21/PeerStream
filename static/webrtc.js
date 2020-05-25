@@ -83,7 +83,7 @@ function gotMessageFromServer(message) {
   if(signal.value=="refreshing"){
     alert("reload the page if required");
     window.location.assign("/?&displayName=xxx");
-    //window.location.reload(true);
+    
     
   }
   //if peer is the first client
